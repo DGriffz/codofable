@@ -37,7 +37,7 @@ Scripts shipped in `scripts/` (Python 3, stdlib only):
 
 **Procedure:**
 1. With the fix present, run the failing test/check. Expected: PASS.
-2. Remove ONLY the fix, keeping everything else identical: `git stash push -m fix -- <fixed-file>` (Class R: reversible, touches nothing else).
+2. Remove ONLY the fix, keeping everything else identical: `git stash push -m fix -- <fixed-file>` (Class 1 per `codofable-change-control` — a local, reversible working-tree mutation; it touches nothing else and must be restored in step 4). The exact stash-by-pathspec pattern and its pitfalls (untracked test files, pop conflicts) are rehearsed in `codofable-verified-done-campaign` Gate B, Pattern B-2 — follow that pattern for the mechanics.
 3. Run the same test. Expected: the ORIGINAL failure, same signature. A different failure means your fix interacts with something else — mechanism not yet understood (N4).
 4. Restore: `git stash pop`. Run again. Expected: PASS.
 
@@ -101,7 +101,7 @@ after 2 consecutive passes: p <= 0.7764 (77.6%) at 95% confidence; rule of three
 $ python3 scripts/flaky_bound.py passes 30
 after 30 consecutive passes: p <= 0.0950 (9.5%) at 95% confidence; rule of three: 3/30 = 0.1000
 $ python3 scripts/flaky_bound.py passes 100
-after 100 consecutive passes: p <= 0.0295 (3.0%) at 95% confidence
+after 100 consecutive passes: p <= 0.0295 (3.0%) at 95% confidence; rule of three: 3/100 = 0.0300
 $ python3 scripts/flaky_bound.py need 0.05
 to claim p < 0.05 at 95% confidence: need 59 consecutive passes (rule of three approximation: 60)
 $ python3 scripts/flaky_bound.py need 0.01

@@ -37,13 +37,13 @@ Do not run a single command yet. First write down, in one sentence, **what kind 
 | C2 | Feature works | "The new export flag is implemented" | E1 — drive the real entrypoint end-to-end on the final state; E2 for the covered cases | Phases 1 → 2 (Gates A, C, D) → 3 → 4 |
 | C3 | Refactor safe (no behavior change intended) | "Extracted the parser, behavior unchanged" | E2 — full relevant test suite green on final state, **and** evidence the suite exercises the moved code (coverage or a deliberate mutation); E1 spot-check of one representative flow | Phases 1 → 2 (Gates A, C, D) → 3 → 4 |
 | C4 | Performance improved | "Startup is 2x faster" | E1 — measured numbers, before AND after, same conditions, per the measurement recipes in `codofable-proof-and-analysis-toolkit` | Phases 1 → 2 (Gates A, B-for-baseline, D) → 3 → 4 |
-| C5 | Docs/comments only | "Updated the README" | E3 is sufficient (renders/lints; links resolve; commands inside the doc actually run if runnable) — plus Gate D always | Phases 1 (light) → 2 (Gates A, D) → 4 |
+| C5 | Docs/comments only | "Updated the README" | Verify at the level the content allows: every command and path the doc quotes must be run/checked — that IS E1/E2 for a doc. Links resolve; renders/lints (E3) on top, plus Gate D always. Where end-to-end verification is genuinely impossible, use the labeled-downgrade route (Solution Menu below) | Phases 1 (light) → 2 (Gates A, D) → 4 |
 
 Rules for this table:
 
 1. If the claim mixes types (a fix plus a drive-by refactor), that is already an N3 finding — split or shrink the change before verifying.
 2. If you cannot classify the claim, you do not understand the task. Stop and re-read the task; if still unclear, ask the human.
-3. C5 is the **only** row where E3 suffices. Everything else: E3/E4-only "done" is the project's named hardest failure mode — forbidden.
+3. There is NO claim type for which E3 alone suffices. For C5, the commands and paths quoted in the doc must actually be run/checked — that is direct observation of the doc's load-bearing content; where verification is genuinely impossible, the claim wording must state what was not verified, via the explicit labeled downgrade in the Solution Menu (per `codofable-validation-and-qa`, rule 6) — never a silent E3 "done". E3/E4-only "done" is the project's named hardest failure mode — forbidden.
 
 ## Phase 1 — PREDICT BEFORE YOU CHECK
 
@@ -97,7 +97,7 @@ Evidence is only valid if produced on the final state (N1). Any edit after your 
 
 ### Gate B — Failed-before check (mandatory for C1 bug fixes; baseline for C4)
 
-A fix-verifying test that never failed proves nothing (E2's definition requires fail-before/pass-after). You must run the test at the **pre-change state**. Do this without mutating history. Both patterns below are **Class R — read-only investigation** (per `codofable-change-control`): they restore the working tree exactly and touch no branch refs. Rehearsed transcript: [references/rehearsal-transcript.md](references/rehearsal-transcript.md).
+A fix-verifying test that never failed proves nothing (E2's definition requires fail-before/pass-after). You must run the test at the **pre-change state**. Do this without mutating history. Both patterns below are **Class 1 — local, reversible** (per `codofable-change-control`): they temporarily mutate the working tree (stash) or add a second checkout and move its HEAD (worktree), touch no branch refs, and MUST end with the tree restored exactly to its Gate-A state before any further evidence counts. Rehearsed transcript: [references/rehearsal-transcript.md](references/rehearsal-transcript.md).
 
 **Pattern B-1: worktree (preferred; use when the pre-change state is a commit).** A `git worktree` is a second checkout of the same repository in another directory; your main tree is untouched.
 
@@ -182,7 +182,7 @@ Per `codofable-research-methodology`: a claim that has survived only friendly ch
 
 | Refutation hypothesis | Discriminating check | Claim survives if |
 |---|---|---|
-| The test passes vacuously (asserts nothing real, wrong file collected, skipped silently) | Mutate the code-under-test or the assertion to something wrong, re-run, then revert the mutation (Class R: mutation is temporary and reverted; rehearsed in [references/rehearsal-transcript.md](references/rehearsal-transcript.md)) | The mutated run FAILS. If it still passes, the test is vacuous — you have no E2 |
+| The test passes vacuously (asserts nothing real, wrong file collected, skipped silently) | Mutate the code-under-test or the assertion to something wrong, re-run, then revert the mutation (Class 1 — a deliberate, temporary working-tree mutation; it MUST be reverted and the tree restored before any further evidence counts; rehearsed in [references/rehearsal-transcript.md](references/rehearsal-transcript.md)) | The mutated run FAILS. If it still passes, the test is vacuous — you have no E2 |
 | Works only on the happy path | Run the entrypoint/test with one boundary input and one malformed input relevant to the claim | Behavior is correct or explicitly-out-of-scope (noted in the Done Statement residual) |
 | Evidence came from stale state (old build artifact, cached bytecode, running server not restarted, pre-edit binary) | Force a rebuild/restart (clean build dir, kill and relaunch the process), re-run the key prediction | Same result after clean rebuild |
 | Verification was weakened somewhere I forgot (N2) | `git diff HEAD -- '<test dirs>' '<ci config>'` and read it | No weakening present, or human-approved and cited |
@@ -201,7 +201,7 @@ DONE STATEMENT
 Claim: <one sentence, exactly what is being claimed>
 Claim class: <C1..C5 (Phase 0)> / Change class: <R/1/2/3 per codofable-change-control>
 Final-state check (Gate A): git status/diff --stat output attached; last edit BEFORE last verification run: yes
-Evidence level achieved: <E1 / E2 / E3-only(C5 docs only)>
+Evidence level achieved: <E1 / E2 / explicitly labeled downgrade per the Solution Menu (state what was NOT verified)>
 Commands run on the final state, with outputs (paste or link transcript):
   1. <command> → <observed output / exit code>
   2. ...
@@ -230,7 +230,7 @@ Ranked. Take the highest-ranked option whose obligation you can meet. Each optio
 
 ## Wrong paths (fenced off — do not enter)
 
-- **Declaring done on E3/E4.** "It builds", "types check", "the logic is clearly right" — necessary at best, never sufficient (except C5). This is the exact failure this campaign exists to kill.
+- **Declaring done on E3/E4.** "It builds", "types check", "the logic is clearly right" — necessary at best, never sufficient, for any claim type. This is the exact failure this campaign exists to kill.
 - **Testing a pre-final state.** Any edit after the last run voids the run. "I only changed a comment" is an E4 judgment about relevance, not evidence. Re-run (Gate A).
 - **The test that never failed.** A regression test you have only ever seen green demonstrates nothing about the fix. Gate B is mandatory for C1, no exceptions for "obvious" fixes.
 - **Weakening assertions to pass.** Deleting/skipping tests, widening tolerances, loosening asserts — N2 hard stop, human gate required. If you find yourself editing a test to make the run green, stop typing and surface it.
@@ -249,9 +249,9 @@ The Done Statement is not the end; it is the input to change control.
 
 ## Provenance and maintenance
 
-- Evidence classes per the library's convention: **[repo]** — the owner's Phase-1 answer naming false done claims as the hardest live problem, and doctrine references N1–N10 / Class R-3 / E1–E4, trace to the project manifest (`README.md`) and the canonical brief as instantiated in `codofable-change-control` and `codofable-validation-and-qa`, as of 2026-07-05. **[craft]** — the phase structure, gate design, refutation table, and solution-menu ranking are the retiring fellow's professional judgment; they are consistent with, but not derivable from, the repo alone.
+- Evidence classes per the library's convention: **[repo]** — the owner's Phase-1 answer naming false done claims as the hardest live problem, and doctrine references N1–N10 / Class R-3 / E1–E4, trace to the project manifest (`README.md`) and to the doctrine's canonical home skills, `codofable-change-control` and `codofable-validation-and-qa`, as of 2026-07-05. **[craft]** — the phase structure, gate design, refutation table, and solution-menu ranking are the retiring fellow's professional judgment; they are consistent with, but not derivable from, the repo alone.
 - All `git worktree`, `git stash push/pop` pathspec, status/diff sweep, and harness-mutation command patterns were executed end-to-end in a throwaway scratch repository on 2026-07-05; the full transcript is preserved in [references/rehearsal-transcript.md](references/rehearsal-transcript.md). Test-runner commands (`pytest ...`, `<test cmd>`, `<entrypoint cmd>`) are generic patterns — substitute the target repo's real commands; they were not run against a specific application here (this repo has none, as of 2026-07-05 [repo]).
 - Re-verification one-liners for drift:
   - Git pattern still behaves as documented: `cd "$(mktemp -d)" && git init -q -b main . && git -c user.email=x@x -c user.name=x commit -q --allow-empty -m x && git worktree add --detach wt HEAD && git worktree remove wt && echo OK`
   - Cross-referenced skills still exist: `ls /path/to/repo/.claude/skills | grep -E 'change-control|validation-and-qa|debugging-playbook|proof-and-analysis'`
-  - Doctrine anchors unchanged: `git -C /path/to/repo log --oneline -- README.md` (any new commit → re-check Section references).
+  - Doctrine anchors unchanged: `git -C /path/to/repo log --oneline -- README.md` (any new commit → re-check the doctrine references above against the manifest).

@@ -5,7 +5,8 @@ description: <Third person. Sentence 1 â€” what the skill provides. Sentence 2 â
 
 <!--
 HOW TO USE THIS TEMPLATE
-1. Copy this file to /home/user/codofable/.claude/skills/<skill-name>/SKILL.md
+1. Copy this file to .claude/skills/<skill-name>/SKILL.md (path relative to
+   the repo root)
    The frontmatter `name` MUST equal the directory name exactly (library rule,
    enforced by validate_skills.sh; official docs treat `name` as a display label
    that defaults to the directory name).

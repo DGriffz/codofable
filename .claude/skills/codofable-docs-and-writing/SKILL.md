@@ -36,8 +36,8 @@ is gated exactly like a code change.
 ## House style (binding rules, with rationale)
 
 These rules restate the library's authoring contract. Their `[repo]` anchor is
-the "AUTHORING RULES" section of `/home/user/codofable/README.md` (line 41;
-re-verify: `grep -n "AUTHORING RULES" README.md`). Where this skill tightens
+the "AUTHORING RULES" section of the repo `README.md` (line 41;
+re-verify from the repo root: `grep -n "AUTHORING RULES" README.md`). Where this skill tightens
 the README, the tightening is library convention declared here and enforced by
 the validator.
 
@@ -61,6 +61,12 @@ a Provenance section carries one):
 - `[doc]` — verifiable against a cited external document (give the URL).
 - `[craft]` — professional judgment / first-principles reasoning, labeled as
   such; no external proof exists.
+
+Binding rule for `[doc]` (library-wide): a source earns `[doc]` ONLY if it was
+actually fetched and read in-session; a source known only from search snippets,
+or unreachable from your environment, is tagged `⚠ unverified` /
+`[craft, pending doc]` with the URL kept so the next maintainer can fetch it
+and upgrade the tag.
 
 ## The template
 
@@ -137,7 +143,7 @@ classification is `[craft]` except where cited):
 
 | Anti-pattern | Example | Why it fails |
 |---|---|---|
-| Vague "helps with X" | `description: Helps with documentation` | Matches everything and nothing; cited as the canonical bad example in official docs `[doc]` (best-practices URL above) |
+| Vague "helps with X" | `description: Helps with documents` | Matches everything and nothing; cited as the canonical bad example in official docs `[doc]` (best-practices URL above) |
 | First person | `description: I can help you write skills` | Point-of-view mismatch in the system prompt degrades discovery `[doc]` (same URL) |
 | Missing triggers | `description: The library's style guide and template` | Says what it IS; a session asking "how do I add a skill?" has no keyword to match |
 | Restating the title | `description: Docs and writing skill` | Zero routing information beyond the name |
@@ -151,9 +157,13 @@ both (and check `## When NOT to use` names the other).
 
 ## Authoring runbook: add or edit a skill
 
-Editing a skill is a **Class 2 change** — it alters the behavior of every
-future session that loads it (classes and gates: `codofable-change-control`;
-per N9 there is no "too trivial to classify"). Work the steps in order.
+Editing a skill's content is a **Class 2 change** — it alters the behavior of
+every future session that loads it. The library rule (shared with
+`codofable-architecture-contract`): a formatting- or typo-only edit that
+changes no content, description, doctrine, or command is **Class 1**; any
+content, description, doctrine, or command change is **Class 2**. Either way
+it gets classified — per N9 there is no "too trivial to classify" (classes and
+gates: `codofable-change-control`). Work the steps in order.
 
 **Step 0 — Read before you write (per N7).** Read the current `SKILL.md` in
 full before editing it. For a new skill, read the inventory in
@@ -165,7 +175,7 @@ is itself a Class 2 change to `codofable-architecture-contract`).
 to write, check whether it already lives somewhere:
 
 ```sh
-cd /home/user/codofable
+# run from the repo root:
 grep -rli "<keyword>" .claude/skills/ --include=SKILL.md
 ```
 
@@ -186,7 +196,7 @@ section last and update it (Step 5).
 `codofable-diagnostics-and-tooling`; interpretation guide lives there):
 
 ```sh
-cd /home/user/codofable
+# run from the repo root:
 sh .claude/skills/codofable-diagnostics-and-tooling/scripts/validate_skills.sh
 ```
 
@@ -269,16 +279,17 @@ verifiable at the cited URL; `[craft]` = professional judgment, so labeled.
 
 | Fact in this skill | Class | As of | Re-verify with |
 |---|---|---|---|
-| README "AUTHORING RULES" section is the in-repo anchor of the house style (line 41) | [repo] | 2026-07-05 | `grep -n "AUTHORING RULES" /home/user/codofable/README.md` |
+| README "AUTHORING RULES" section is the in-repo anchor of the house style (line 41) | [repo] | 2026-07-05 | from the repo root: `grep -n "AUTHORING RULES" README.md` |
 | Frontmatter limits: name <=64 chars lowercase/numbers/hyphens, no reserved words; description non-empty <=1024 chars, no XML tags; third-person warning; <500-line body guidance; one-level-deep references | [doc] | 2026-07-05 | WebFetch https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices and check "YAML frontmatter requirements" + "Writing effective descriptions" |
 | Description is the always-in-context routing layer; body loads on invoke; 1,536-char listing truncation; malformed-YAML behavior; keyword troubleshooting advice | [doc] | 2026-07-05 | WebFetch https://code.claude.com/docs/en/skills and check "Frontmatter reference" + "Troubleshooting" |
-| Validator path, invocation, checks, and exit codes as described in Step 3 | [repo] | 2026-07-05 | `cd /home/user/codofable && sh .claude/skills/codofable-diagnostics-and-tooling/scripts/validate_skills.sh; echo "exit=$?"` |
-| Inventory-check grep example output (five siblings mention "evidence") | [repo] | 2026-07-05 | `grep -rlic "evidence" /home/user/codofable/.claude/skills/ --include=SKILL.md` — expect the sibling list to have GROWN as the library fills in; the point (multiple non-home mentions must cite, not restate) stands |
+| Validator path, invocation, checks, and exit codes as described in Step 3 | [repo] | 2026-07-05 | from the repo root: `sh .claude/skills/codofable-diagnostics-and-tooling/scripts/validate_skills.sh; echo "exit=$?"` |
+| Inventory-check grep example output (five siblings mention "evidence") | [repo] | 2026-07-05 | from the repo root: `grep -rlic "evidence" .claude/skills/ --include=SKILL.md` — expect the sibling list to have GROWN as the library fills in; the point (multiple non-home mentions must cite, not restate) stands |
 | Touch-triggered re-verification cadence (no calendar cadence) | [craft] | 2026-07-05 | Falsified if the library gains an automated scheduled verification job; then move cadence to that job's definition |
-| "Name == directory" requirement and the [repo]/[doc]/[craft] tagging scheme are library conventions with their home HERE and enforcement in the validator | [repo] | 2026-07-05 | `grep -n "name" /home/user/codofable/.claude/skills/codofable-diagnostics-and-tooling/scripts/validate_skills.sh \| head -5` |
+| "Name == directory" requirement and the [repo]/[doc]/[craft] tagging scheme are library conventions with their home HERE and enforcement in the validator | [repo] | 2026-07-05 | from the repo root: `grep -n "name" .claude/skills/codofable-diagnostics-and-tooling/scripts/validate_skills.sh \| head -5` |
 
-Maintenance: this skill is subject to its own protocol. Any edit here is
-Class 2; re-run the table above on touch; retirement routes through the
+Maintenance: this skill is subject to its own protocol. Any content edit here
+is Class 2 (formatting/typo-only: Class 1, per the rule in the authoring
+runbook); re-run the table above on touch; retirement routes through the
 procedure this skill defines, recorded in `codofable-failure-archaeology`.
 
 Last full verification: 2026-07-05 (all `[repo]` commands run in-session; both

@@ -53,7 +53,7 @@ Every term the rest of the library uses, one home each. Cite this section instea
 | **Permission mode** | Session-level setting controlling how tool calls are approved: `default` (prompt), `acceptEdits`, `plan` (read-only exploration), `auto`, `dontAsk`, `bypassPermissions`. Enforced by the harness, not by the model. | [doc:permissions] |
 | **Hook** | A user-defined shell command (or HTTP/prompt handler) that runs automatically at fixed lifecycle events (`PreToolUse`, `PostToolUse`, `SessionStart`, `Stop`, ...). Deterministic: enforced by the system regardless of what the model decides. Exit code 2 blocks the action. | [doc:hooks] |
 | **CLAUDE.md / memory** | Persistent instruction files loaded at the start of every session: CLAUDE.md files you write (project/user/org scopes), plus auto memory (`MEMORY.md`, first 200 lines or 25KB) that Claude writes itself. Context, not enforced configuration. | [doc:memory] |
-| **E1 — direct observation** | Changed behavior exercised end-to-end, in-session, on the final state. Full definition: `codofable-validation-and-qa`. | [repo] (Brief §3.3) |
+| **E1 — direct observation** | Changed behavior exercised end-to-end, in-session, on the final state. Full definition: `codofable-validation-and-qa`. | [repo] (canon home: `codofable-validation-and-qa`) |
 | **E2 — automated test** | Test run in-session with output captured; for bug fixes: fails before, passes after. Home: `codofable-validation-and-qa`. | [repo] |
 | **E3 — static verification** | Build/types/lint. Necessary, never sufficient. Home: `codofable-validation-and-qa`. | [repo] |
 | **E4 — reasoning** | Plausibility argument. Hypothesis fuel only, never proof. Home: `codofable-validation-and-qa`. | [repo] |
@@ -111,7 +111,7 @@ Other documented fields (`argument-hint`, `arguments`, `model`, `effort`, `hooks
 - Supporting files (`references/*.md`, `examples/`, `scripts/`) do not load with the body; reference them from SKILL.md so Claude knows what each contains and when to load it.
 - Compaction truncation keeps the **start** of the file, so put the most important instructions near the top of SKILL.md. [doc:context]
 
-The Brief's 150–450 line target for this library [repo] is stricter than, and compatible with, the documented 500-line ceiling.
+This library's own 150–450 line target (a library convention, home: `codofable-docs-and-writing`) [repo] is stricter than, and compatible with, the documented 500-line ceiling.
 
 ## 3. Context mechanics and their engineering consequences
 
@@ -171,7 +171,7 @@ What a skill author must know; full treatment is the cited docs, and this librar
 
 No benchmark numbers are cited here because none were verified against a document; this section is the fellow's professional judgment, labeled as such, and it is the design premise of the entire library.
 
-**Observed difference in kind.** A top-tier (Fable-class) session tends to *infer procedure from sparse instruction*: given "fix the bug," it independently reproduces first, distrusts its own first hypothesis, re-verifies after compaction, and notices when a passing test doesn't actually exercise the change. A mid-tier (Sonnet-class) session executes *explicit* procedure reliably and cheaply, but fills fewer gaps on its own: unstated steps are skipped more often, "looks plausible" is more often accepted as "verified" (E4 treated as E1 — the project's named hardest failure mode, per the Brief), and recovery from a wrong path takes longer without a decision table pointing at the exit.
+**Observed difference in kind.** A top-tier (Fable-class) session tends to *infer procedure from sparse instruction*: given "fix the bug," it independently reproduces first, distrusts its own first hypothesis, re-verifies after compaction, and notices when a passing test doesn't actually exercise the change. A mid-tier (Sonnet-class) session executes *explicit* procedure reliably and cheaply, but fills fewer gaps on its own: unstated steps are skipped more often, "looks plausible" is more often accepted as "verified" (E4 treated as E1 — the project's named hardest failure mode; see `codofable-failure-archaeology` FM-1), and recovery from a wrong path takes longer without a decision table pointing at the exit.
 
 **The design consequence: this library converts judgment into procedure.** Everything an expert "just does" is externalized into forms a procedure-follower executes well:
 
@@ -188,6 +188,6 @@ Authoring implications for every skill in this library [craft]: imperative check
 ## Provenance and maintenance
 
 - **Date stamp:** all `[doc:*]` facts verified 2026-07-05 by fetching the seven URLs in the tag table at the top of this file. Claude Code documentation is volatile (many facts carry "as of v2.1.x" markers in the source pages); numbers most likely to drift: 500-line SKILL.md guidance, 1,536-char description cap, 1% listing budget, 5,000/25,000-token compaction caps, 200-line/25KB memory limits, subagent depth limit, background-by-default behavior.
-- **Evidence classes used:** [doc] = the cited official page; [repo] = this repository's files (Brief-mandated doctrine, the two-commit history, this library's paths); [craft] = the fellow's judgment, always labeled inline (Sections 3.3, 5 design rule, and all of Section 6).
+- **Evidence classes used:** [doc] = the cited official page; [repo] = this repository's files (the doctrine as instantiated in its home skills `codofable-change-control` / `codofable-validation-and-qa` and mandated by the repo `README.md` manifest, the two-commit pre-library history, this library's paths); [craft] = the fellow's judgment, always labeled inline (Sections 3.3, 5 design rule, and all of Section 6).
 - **Re-verification:** re-fetch any tag-table URL and diff against the relevant section. In-session: run `/context` (context usage), `/memory` (loaded CLAUDE.md/memory files), `/doctor` (skill-description truncation) — these are Claude Code in-session commands, not shell commands. Shell check that this library's skills are where Section 2.1 says: `ls .claude/skills/` from the repo root (run in this sandbox 2026-07-05).
 - **Known gaps (honest):** the docs pages fetched did not state an exact auto-compaction trigger threshold percentage or the numeric subagent parallelism ceiling; where this file says "approaches the limit" or "fixed depth," that is the docs' own level of precision. Do not invent numbers to fill these gaps.

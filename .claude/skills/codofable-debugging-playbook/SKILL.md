@@ -1,11 +1,11 @@
 ---
 name: codofable-debugging-playbook
-description: The general-craft debugging method for any codebase, as an executable procedure. Load this skill whenever a session is diagnosing a failure it does not yet understand — a failing or flaky test, "works locally, fails in CI", a regression after a merge, wrong output with no error, a crash, a hang or timeout, a performance cliff, or a broken build. Provides the core debugging loop (reproduce → stabilize → shrink → hypothesize → discriminating experiment → prove causality), a symptom→triage table with first questions and first experiments per failure class, a verified git-bisect walkthrough, the catalog of fixation traps (with tells and escape moves), and stop-and-reassess triggers. Do NOT load it for verifying an already-finished change (use codofable-verified-done-campaign) or for statistical analysis of flakiness (use codofable-proof-and-analysis-toolkit).
+description: The general-craft debugging method for any codebase, as an executable procedure. Load this skill whenever a session is diagnosing a failure it does not yet understand — a failing or flaky test, "works locally, fails in CI", a regression after a merge, wrong output with no error, a crash, a hang or timeout, a performance cliff, or a broken build. Provides the core debugging loop (reproduce → stabilize → shrink → hypothesize → discriminating experiment → prove causality), a symptom→triage table with first questions and first experiments per failure class, the catalog of fixation traps (with tells and escape moves), and stop-and-reassess triggers. For executing a git bisect (the full verified recipe) use codofable-proof-and-analysis-toolkit. Do NOT load it for verifying an already-finished change (use codofable-verified-done-campaign) or for statistical analysis of flakiness (use codofable-proof-and-analysis-toolkit).
 ---
 
 # Codofable Debugging Playbook
 
-This skill is the debugging method itself: a repeatable procedure a zero-context engineer or Sonnet-class session can execute on ANY repository to go from "something is wrong" to "one proven mechanism explains everything, and the fix is verified causal". It is craft doctrine [craft], not documentation of any specific codebase — this repository has no application code and no incident history (its entire git history is two commits [repo]). Every command below is either run-in-session (marked with its transcript) or an ecosystem-generic pattern (marked "pattern").
+This skill is the debugging method itself: a repeatable procedure a zero-context engineer or Sonnet-class session can execute on ANY repository to go from "something is wrong" to "one proven mechanism explains everything, and the fix is verified causal". It is craft doctrine [craft], not documentation of any specific codebase — this repository has no application code and no incident history (its pre-library history is exactly two commits; everything after is library authoring [repo]). Every command below is either run-in-session (marked with its transcript) or an ecosystem-generic pattern (marked "pattern").
 
 ## When to use this skill
 
@@ -29,7 +29,7 @@ Load this skill when:
 
 ## The core loop (runbook)
 
-Debugging is a loop, not a line. Run the steps in order; the loop exits only at Step 8. All investigation before an intentional fix is Class R (read-only) per `codofable-change-control`; the fix itself is Class 2.
+Debugging is a loop, not a line. Run the steps in order; the loop exits only at Step 8. Investigation that only reads is Class R per `codofable-change-control`; investigation steps that mutate the working tree or move HEAD (stashing edits, scratch clones, `git bisect`) are Class 1 — local and reversible, and you must restore state when finished; the fix itself is Class 2.
 
 1. **Reproduce (per N5).** Get the failure to happen in your session, on demand, and capture the exact command + output. A bug you cannot reproduce is a bug you cannot verify fixed. If you cannot reproduce yet, that IS the current problem — do not hypothesize about the bug's cause; hypothesize about what your environment lacks (see the triage table's "works locally, fails in CI" row, inverted).
 2. **Stabilize the repro.** Make it fail the same way every time: pin the seed, the input, the port, the clock, the ordering — whatever varies. If it stays intermittent, measure the failure rate first so you can detect change later (pattern, shape verified in this sandbox 2026-07-05):
@@ -63,12 +63,12 @@ Universal failure classes. For each: the first three discriminating questions to
 |---|---|---|
 | **Works locally, fails in CI** | 1. Same commit SHA in both places? 2. Same toolchain/dependency versions? 3. What does CI have/lack that local doesn't (env vars, network, clock/timezone, CPU count, clean checkout)? | Diff the two environments (see below). Then reproduce CI's conditions locally one axis at a time: clean clone in a temp dir, `CI=true`, same container image if any. |
 | **Intermittent / flaky failure** | 1. What is the measured failure rate (run it 20×, count)? 2. Does it correlate with parallelism, ordering, or timing (does `--jobs 1` / fixed seed / fixed order change the rate)? 3. Does it ever flake in isolation, or only in the full suite (shared-state suspect)? | Run the single test 20× alone, then 20× inside the suite; compare rates (loop pattern in Step 2). Pin the seed/order (pattern: `--seed 42`, `-p no:randomly`, `--test-threads=1` — flag names vary by ecosystem). Rate analysis: `codofable-proof-and-analysis-toolkit`. |
-| **Regression after merge** | 1. What is the last known-good commit — verified by running, not by memory? 2. Is the failure deterministic at both endpoints (else you'll bisect noise)? 3. Did dependencies/data/infra change in the same window, or only code? | `git bisect` with an automated test — full verified walkthrough below. If deps are lockfiled, bisect covers them; if not, pin them first or you are bisecting two variables. |
+| **Regression after merge** | 1. What is the last known-good commit — verified by running, not by memory? 2. Is the failure deterministic at both endpoints (else you'll bisect noise)? 3. Did dependencies/data/infra change in the same window, or only code? | `git bisect` with an automated test — full verified recipe: `codofable-proof-and-analysis-toolkit` Recipe 2. If deps are lockfiled, bisect covers them; if not, pin them first or you are bisecting two variables. |
 | **Wrong output, no error** | 1. Is the INPUT to the failing stage already wrong (walk upstream), or does this stage corrupt it? 2. Wrong for all inputs or only some — what distinguishes the failing inputs? 3. Was it ever right (if yes → regression row)? | Bisect the pipeline: dump the intermediate value at the midpoint stage (`print`/log/debugger — one observation point) and compare against expected. Each probe halves the suspect region. |
 | **Crash / exception** | 1. What is the FIRST error in the log (later ones are usually cascade)? 2. Does the top stack frame belong to your code or a dependency — and which frame is the last one you own? 3. Is the crashing value (null/index/type) wrong at the crash site, or already wrong when it entered? | Read the full stack trace bottom-up to the last frame you own; add one assertion/log just above it to test "value already bad on entry vs corrupted here" (pattern). That single probe discriminates callee-bug vs caller-bug. |
 | **Hang / timeout** | 1. Is it hung (no progress) or just slow (progress, insufficient time)? 2. Where is it stuck — what does the stack/state say at the moment of hang? 3. Is it waiting on something external (lock, socket, subprocess, stdin)? | Snapshot the process while hung (pattern, by ecosystem): `py-spy dump --pid <PID>` (Python), `jstack <PID>` (JVM), `kill -QUIT <PID>` (Go, dumps goroutines), `gdb -p <PID> -ex 'thread apply all bt'` (native). One snapshot usually names the wait; two snapshots discriminate deadlock (identical) from livelock/slowness (moving). |
 | **Performance cliff** | 1. Cliff since a commit (→ bisect with a timing script) or since an input/data change? 2. Where does the time actually go — measured by a profiler, not guessed? 3. Does cost scale with input size as expected, or did complexity change (O(n)→O(n²) shows as cliff)? | Time it end-to-end first (`time <cmd>` — pattern) to get a number; then profile before touching anything. Never optimize on a guess. Measurement discipline: `codofable-diagnostics-and-tooling`; performance measurement recipes: `codofable-proof-and-analysis-toolkit`. |
-| **Build breaks** | 1. Does a pristine build fail too (`git stash` your edits or clean-clone to a temp dir — read-only w.r.t. history), or only incremental (stale cache/artifacts)? 2. Did the toolchain or a dependency version drift since the last green build? 3. First error in the build log (later errors are cascade)? | Clean rebuild in a scratch clone (pattern): `git clone <repo> /tmp/clean && cd /tmp/clean && <build cmd>`. Pristine-fails vs pristine-passes cleanly splits "code/deps broken" from "my workspace state is broken". |
+| **Build breaks** | 1. Does a pristine build fail too (`git stash` your edits — Class 1, reversible, pop it back when done — or clean-clone to a temp dir), or only incremental (stale cache/artifacts)? 2. Did the toolchain or a dependency version drift since the last green build? 3. First error in the build log (later errors are cascade)? | Clean rebuild in a scratch clone (pattern): `git clone <repo> /tmp/clean && cd /tmp/clean && <build cmd>`. Pristine-fails vs pristine-passes cleanly splits "code/deps broken" from "my workspace state is broken". |
 
 **Environment diff pattern** (shape verified in this sandbox 2026-07-05; capturing the CI side requires adding an `env | sort` step to the CI job):
 
@@ -89,45 +89,14 @@ Verified sample output on synthetic files:
 
 Also diff toolchain versions (`node --version`, `python --version`, lockfile hashes) the same way — version skew is the most common "works locally" mechanism [craft].
 
-## Worked example: git bisect mechanics (verified in-session)
+## Git bisect: the canonical discriminating experiment for regressions
 
-`git bisect` is the canonical discriminating experiment for "regression after merge": every probe halves the suspect commit range regardless of outcome. The following was executed 2026-07-05 in a throwaway demo repository created for this skill (NOT this project's history — this repo has only two commits [repo]). Setup: 8 commits; commit 5 silently changed `+` to `-` in a `calc.sh` script; `test.sh` exits 0 iff `./calc.sh 2 3` prints `5`.
+`git bisect` is the canonical discriminating experiment for "regression after merge": every probe halves the suspect commit range regardless of outcome — which is exactly the Step-5 ideal, and why it belongs in your first three candidate experiments whenever the failure has a "worked at commit X" boundary. The full verified recipe — commands, an executed transcript, endpoint verification, skip semantics, and the method's own failure modes — lives in `codofable-proof-and-analysis-toolkit`, Recipe 2. Use it from there; do not improvise the procedure.
 
-Commands run:
+Two playbook-side cautions before you run it [craft]:
 
-```sh
-git bisect start
-git bisect bad HEAD                 # newest commit: known failing
-git bisect good <first-commit-sha>  # oldest commit: known good — VERIFY by running the test there first
-git bisect run ./test.sh            # automates the loop; script must exit 0=good, 1-124/126/127=bad, 125=skip
-```
-
-Actual transcript (trimmed to the decisions):
-
-```
-Bisecting: 3 revisions left to test after this (roughly 2 steps)
-[ce16749...] commit 4: harmless comment
-running './test.sh'
-Bisecting: 1 revision left to test after this (roughly 1 step)
-[ecaa457...] commit 6: harmless comment
-running './test.sh'
-Bisecting: 0 revisions left to test after this (roughly 0 steps)
-[bcd91fc...] commit 5: refactor arithmetic (introduces bug)
-running './test.sh'
-bcd91fc24d9d68de8665a85364aec1ea3d674f0c is the first bad commit
-    commit 5: refactor arithmetic (introduces bug)
- calc.sh | 2 +-
-```
-
-Then `git bisect reset` to return to your branch. 8 commits, 3 probes — log₂ scaling; 1000 commits is ~10 probes.
-
-Craft rules that make bisect trustworthy [craft]:
-
-- Verify BOTH endpoints by actually running the test before starting; a mislabeled "good" endpoint silently yields a wrong answer.
-- The test must be deterministic at the failure (Step 2 of the core loop). Bisecting a flake converges on a random commit. If forced, wrap the test to run N times and fail on any failure — and treat the result as "candidate", to be confirmed by revert-test.
-- Exit code 125 from the script skips an untestable commit (e.g. build broken for unrelated reasons).
-- Bisect names the first bad commit; that is strong evidence, not yet mechanism. You still owe Step 8 (mechanism explains all observations) and Step 9 (revert-test) before fixing.
-- In this project, `git bisect` is read-only investigation of history (Class R) but it moves HEAD; finish with `git bisect reset`, and per this library's write-scope rules do not run it inside a repo where you are prohibited from checkout-style operations — clone to a scratch directory instead.
+- Bisect names the first bad commit; that is strong evidence, not yet mechanism. You still owe Step 8 (one mechanism explains all observations) and Step 9 (revert-test) before fixing — a bisect result is a hypothesis generator, and treating it as the root cause is a fixation trap in the making (see Trap 2).
+- Bisect moves HEAD, so it is a Class 1 action (local, reversible — per `codofable-change-control`): always finish with `git bisect reset`, and if your session's constraints forbid checkout-style operations in the current repo, clone to a scratch directory and bisect there instead.
 
 ## Fixation traps
 
@@ -178,7 +147,7 @@ Mechanical circuit-breakers. When one fires, stop typing and run its action befo
 ## Provenance and maintenance
 
 - Authored 2026-07-05 by the retiring fellow. Method content is [craft] — first-principles debugging doctrine, deliberately repo-agnostic; it does not drift with this repository.
-- [repo] facts: this repository contains no application code and exactly two commits; no incidents or war stories exist to cite, and none are cited. Re-verify: `git -C /home/user/codofable log --oneline` (expect 2 commits as of 2026-07-05; more later is fine and does not affect this skill).
-- Verified in-session 2026-07-05, in a throwaway scratch repository outside this project: the `git bisect start/bad/good/run` walkthrough (transcript above is the real output, SHAs from the demo repo), the `diff <(sort a) <(sort b)` env-diff shape, and the 20-run pass/fail counting loop. Re-verify bisect mechanics anytime: build an 8-commit scratch repo with a mid-history bug and rerun the four commands in the walkthrough.
-- Pattern-only (not runnable here, correct per ecosystem docs as of training; re-verify against your target ecosystem before relying on flags): `py-spy dump`, `jstack`, `kill -QUIT` (Go), `gdb -p ... 'thread apply all bt'`, test seed/ordering flags (`--seed`, `-p no:randomly`, `--test-threads=1`), `git bisect` exit-code-125 skip semantics (`git help bisect` to confirm).
+- [repo] facts: this repository contains no application code, and its pre-library history is exactly two commits (`c30ac04`, `c321e16`) — everything after those is library authoring; no incidents or war stories exist to cite, and none are cited. Re-verify from the repo root: `git log --oneline c321e16` (expect exactly two lines; later library-authoring commits do not affect this skill).
+- Verified in-session 2026-07-05, in a throwaway scratch repository outside this project: the `diff <(sort a) <(sort b)` env-diff shape and the 20-run pass/fail counting loop. The verified git-bisect walkthrough lives in `codofable-proof-and-analysis-toolkit` (Recipe 2), its single home.
+- Pattern-only (not runnable here, correct per ecosystem docs as of training; re-verify against your target ecosystem before relying on flags): `py-spy dump`, `jstack`, `kill -QUIT` (Go), `gdb -p ... 'thread apply all bt'`, test seed/ordering flags (`--seed`, `-p no:randomly`, `--test-threads=1`).
 - Doctrine cited, not restated: N-rules and change classes live in `codofable-change-control`; evidence hierarchy in `codofable-validation-and-qa`; causal-proof and flakiness statistics in `codofable-proof-and-analysis-toolkit`.

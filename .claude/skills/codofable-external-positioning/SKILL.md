@@ -80,7 +80,7 @@ A prior-art search on 2026-07-05 (queries and results logged in [references/prio
 
 | Work | What the search results state | Verification status |
 |---|---|---|
-| SkillsBench (arXiv 2602.12670) | Benchmarks how well Agent Skills improve task performance across harnesses/models; reported Claude models gaining ~+14 to +23pp with curated skills | ⚠ Search-result summary only; arxiv 403 from sandbox. MUST fetch and read before citing publicly. |
+| SkillsBench (arXiv 2602.12670) | Benchmarks how well Agent Skills improve task performance across harnesses/models; curated skills reported +16.2pp average, up to +23.3pp for Claude Code + Opus 4.5 | ⚠ Search-result summary only; arxiv 403 from sandbox. MUST fetch and read before citing publicly. |
 | SKILL-DISCO (arXiv 2606.26669) | Skills induced by a frontier model (GPT-4o) transferred to other models incl. small open-source ones, with largest gains on the smallest models | ⚠ Same. This is the closest known prior art to codofable's uplift thesis. |
 | Letta Context-Bench skills post | Measured whether various models can use skills | ⚠ Search hit only (letta.com 403 from sandbox). |
 | skill-creator benchmark mode | With-skill vs without-skill pass-rate/token/time comparison, blind A/B between skill versions | Verified [doc] at https://code.claude.com/docs/en/skills. |
@@ -160,5 +160,5 @@ Authored 2026-07-05. Volatile facts and their evidence classes:
 - [doc, fetched 2026-07-05] claude-cookbooks (ex anthropic-cookbook): https://github.com/anthropics/claude-cookbooks. Old Prompt Library URL now serves prompting-best-practices content — re-verify before describing the Prompt Library as a live standalone product.
 - [⚠ unverified, search-only, 2026-07-05] SkillsBench (arXiv 2602.12670), SKILL-DISCO (arXiv 2606.26669), Letta Context-Bench post — arxiv.org and letta.com were unreachable (proxy 403) from the authoring sandbox. Summaries in Section 1.7 come from WebSearch result text. BLOCKING for public citation: fetch and read full texts first. Full search log: [references/prior-art-log-2026-07-05.md](references/prior-art-log-2026-07-05.md).
 - [craft] The novelty judgments in Section 2 and the distillation-vs-procedure distinction's consequences (1.6) are the fellow's reasoning on the verified facts.
-- [repo] "Zero uplift measurements exist" — re-verify: `ls /home/user/codofable && grep -ri "experiment\|benchmark\|results" /home/user/codofable --include="*.json" -l` (expect no experiment artifacts; update Section 2 UNPROVEN if any appear).
-- Re-verification one-liners: `git -C /home/user/codofable log --oneline | tail -3` (project origin commits); `ls /home/user/codofable/.claude/skills/` (current skill inventory before quoting a count).
+- [repo] "Zero uplift measurements exist" — re-verify from the repo root: `ls . && grep -ri "experiment\|benchmark\|results" . --include="*.json" -l` (expect no experiment artifacts; update Section 2 UNPROVEN if any appear).
+- Re-verification one-liners (from the repo root): `git log --oneline c321e16` (project origin commits — expect exactly `c321e16`, `c30ac04`; later commits are library authoring); `ls .claude/skills/` (current skill inventory before quoting a count).

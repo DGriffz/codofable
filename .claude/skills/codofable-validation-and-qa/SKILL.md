@@ -97,19 +97,12 @@ This repo has no CI configuration and no application test suite (verified 2026-0
 
 ### Discovering a target repo's golden inventory
 
-When dropped into an unfamiliar repo, derive its golden inventory from what its CI actually enforces - CI is the ground truth of what the project's owners treat as gating. Full onboarding procedure lives in `codofable-repo-onboarding`; the inventory-specific steps (generic patterns, adapt paths per repo):
+When dropped into an unfamiliar repo, derive its golden inventory from what its CI actually enforces. Finding and mining CI is `codofable-repo-onboarding`'s job (its Step 3, CI-as-ground-truth, has the discovery commands). The inventory-specific steps once CI is located:
 
-```bash
-# 1. Find CI definitions (pattern - adapt to the repo's host):
-ls .github/workflows/ .gitlab-ci.yml .circleci/ Jenkinsfile 2>/dev/null
-
-# 2. Extract the commands CI actually runs (pattern):
-grep -nE 'run:|script:' .github/workflows/*.yml
-```
-
-3. Check the contributor docs (`CONTRIBUTING.md`, `docs/development*`) and task runners (`Makefile`, `justfile`, `package.json` "scripts", `noxfile.py`, `tox.ini`) for a canonical "check everything" target - these often bundle the inventory into one command.
-4. Write the inventory down as an explicit list in your task notes before making changes, and run it once UNCHANGED to capture the baseline: you must know the repo was green before your change to attribute any red to your change.
-5. If baseline is already red, record which items fail before you touch anything - those failures are pre-existing, and your obligation is "no NEW reds", stated explicitly in your report (N8: label what you did and did not prove).
+1. Extract the commands CI actually runs (generic pattern, adapt per repo): `grep -nE 'run:|script:' .github/workflows/*.yml` - each gating job's commands are candidate inventory items.
+2. Check the contributor docs (`CONTRIBUTING.md`, `docs/development*`) and task runners (`Makefile`, `justfile`, `package.json` "scripts", `noxfile.py`, `tox.ini`) for a canonical "check everything" target - these often bundle the inventory into one command.
+3. Write the inventory down as an explicit list in your task notes before making changes, and run it once UNCHANGED to capture the baseline: you must know the repo was green before your change to attribute any red to your change.
+4. If baseline is already red, record which items fail before you touch anything - those failures are pre-existing, and your obligation is "no NEW reds", stated explicitly in your report (N8: label what you did and did not prove).
 
 ## Adding tests to an unfamiliar repo
 
@@ -145,9 +138,9 @@ Mixed exit codes on identical code = flaky. All-same outcome across ~10 runs is 
 
 ## Provenance and maintenance
 
-- Evidence-hierarchy definitions (E1-E4) and the "done requires E1 or E2" rule: canonical project doctrine, authored 2026-07-05 as part of the founding skill library. [craft], adopted as canon by the authoring brief; this skill is the single home - if these definitions must change, change them HERE and fix citations elsewhere.
+- Evidence-hierarchy definitions (E1-E4) and the "done requires E1 or E2" rule: canonical project doctrine, authored 2026-07-05 as part of the founding skill library. [craft], adopted as project canon (the repo `README.md` manifest mandates the doctrine; `codofable-change-control` holds the sibling canon); this skill is the single home - if these definitions must change, change them HERE and fix citations elsewhere.
 - The three-reviewer gate (FACTUAL/DOCTRINE/USABILITY): [repo] - stated in `README.md` Phase 3. Re-verify: `grep -n "Three parallel reviewers" /path/to/repo/README.md` (run from the repo root; verified present 2026-07-05).
-- Repo contents claim ("no CI, no application test suite; only LICENSE, README.md, .claude/"): [repo], as of 2026-07-05. Re-verify: `ls -A` at the repo root and `git log --oneline` (two commits as of 2026-07-05).
+- Repo contents claim ("no CI, no application test suite; only LICENSE, README.md, .claude/"): [repo], as of 2026-07-05. Re-verify: `ls -A` at the repo root and `git log --oneline c321e16` (the pre-library history is exactly two commits; library-authoring commits after them are expected and do not affect this claim).
 - Golden-inventory item 1 (`validate_skills.sh`): the validator ships with `codofable-diagnostics-and-tooling`, authored concurrently with this skill on 2026-07-05. [craft] - re-verify existence before relying on it: `ls .claude/skills/codofable-diagnostics-and-tooling/scripts/` from the repo root; consult that skill's SKILL.md for the authoritative invocation.
 - All shell snippets in "Discovering a target repo's golden inventory", "Adding tests", and "Flakiness" are marked as generic patterns - adapt to the target repo; they were not run against a target repo here because this repo has no CI or test suite to run them on.
 - Example tool names (pytest, tsc, cargo, ruff) are illustrative ecosystem-generic examples [craft], not claims about this repo.

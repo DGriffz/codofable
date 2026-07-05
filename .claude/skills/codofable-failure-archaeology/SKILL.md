@@ -30,10 +30,11 @@ Jargon used below, defined once: **agentic session** = an AI model (e.g. Claude 
 
 ## Register 1 — The repository's decision record
 
-This repository's entire git history is two commits (verified in-session, 2026-07-05). There are no dead branches, reverts, or stalled investigations to mine — the archaeology below is complete, not sampled. Re-verify at any time:
+This repository's PRE-LIBRARY history is exactly two commits — `c30ac04` and `c321e16` (verified in-session, 2026-07-05); every commit after those is library authoring, not application history. In the founding history there are no dead branches, reverts, or stalled investigations to mine — the archaeology below is complete for it, not sampled. Re-verify at any time:
 
 ```bash
-git -C /path/to/codofable log --oneline --all        # expect exactly: c321e16, c30ac04
+git -C /path/to/codofable log --oneline c321e16      # expect exactly two lines: c321e16, c30ac04
+# (a bare `git log --oneline --all` additionally shows the library-authoring commits made since)
 ```
 
 ### DR-1 — Founding intent [repo] — status: settled
@@ -63,13 +64,13 @@ The manifest's Phase 1 required asking the owner up to five questions. The owner
 
 ### DR-4 — General craft, not project documentation [craft: owner statement, consistent with repo] — status: settled
 
-Consequence of DR-3(1), recorded separately because it is the decision most tempting to relitigate: a future session looking at `<project>-config-and-flags`-style names in the manifest taxonomy may conclude the library should catalog *this repo's* build system, flags, and deploy conventions. It should not — this repo has none (two commits, LICENSE + README only). Every skill teaches the *method* for doing that job on an arbitrary target repository. If you find yourself writing "this project's build command is…", stop and reread this entry.
+Consequence of DR-3(1), recorded separately because it is the decision most tempting to relitigate: a future session looking at `<project>-config-and-flags`-style names in the manifest taxonomy may conclude the library should catalog *this repo's* build system, flags, and deploy conventions. It should not — this repo has none (its founding history is two commits, LICENSE + README only; everything since is the skill library itself). Every skill teaches the *method* for doing that job on an arbitrary target repository. If you find yourself writing "this project's build command is…", stop and reread this entry.
 
 ## Register 2 — The failure-mode catalog of agentic coding sessions
 
 These are the enemies. Each entry: **symptom → root cause → evidence → status → mitigating skill**. Evidence classes per the library convention: `[repo]` = verifiable in this repository or its authoring record; `[doc]` = verifiable at a cited, fetch-checked URL; `[craft]` = the fellow's professional judgment from operating experience, honestly labeled. No incident below is invented; where an entry rests on judgment rather than a citable document, it says so.
 
-**Status vocabulary** (used in both registers): `open` = the failure mode occurs and no library mitigation exists yet; `mitigated` = a library skill targets it, but effectiveness is unmeasured (per DR-3(4), measured uplift is the open frontier); `settled` = the question is closed and must not be reopened without owner escalation. As of 2026-07-05 every catalog entry is at best `mitigated` — none is `settled`, because no mitigation has measured effectiveness yet.
+**Status vocabulary** (used in both registers): `open` = the failure mode occurs and no library mitigation exists yet; `mitigated` = a library skill targets it, but effectiveness is unmeasured (per DR-3(4), measured uplift is the open frontier); `settled` = the question is closed and must not be reopened without owner escalation; `retired` = terminal status for an idea, approach, or skill retired with evidence via the idea lifecycle in `codofable-research-methodology` or the retirement procedure in `codofable-docs-and-writing`. As of 2026-07-05 every catalog entry is at best `mitigated` — none is `settled`, because no mitigation has measured effectiveness yet.
 
 ### Quick triage table
 
@@ -182,7 +183,7 @@ These are the enemies. Each entry: **symptom → root cause → evidence → sta
 **Rules:**
 
 1. **Append-only.** Entries are never deleted and their historical content is never rewritten to say something different. When reality changes, update the `status` field and append a dated note. Wrong-in-hindsight entries get a correction note, not erasure — the wrongness is itself archaeology.
-2. **Status lifecycle:** `open` → `mitigated` → `settled`, moving only on evidence: `open → mitigated` when a mitigation exists; `mitigated → settled` when the mitigation's effectiveness is measured (DR-3(4)) or the owner closes the question. Regression (`settled → open`) is allowed and must cite the new evidence.
+2. **Status lifecycle:** `open` → `mitigated` → `settled`, moving only on evidence: `open → mitigated` when a mitigation exists; `mitigated → settled` when the mitigation's effectiveness is measured (DR-3(4)) or the owner closes the question. Regression (`settled → open`) is allowed and must cite the new evidence. `retired` is a separate terminal status entered directly when an idea or skill is retired with evidence (via `codofable-research-methodology`'s lifecycle or `codofable-docs-and-writing`'s retirement procedure) — the entry records why it died so nobody re-authors it.
 3. **Required fields** — an entry missing any of these is not done:
 
 | Field | Requirement |
@@ -192,8 +193,8 @@ These are the enemies. Each entry: **symptom → root cause → evidence → sta
 | Symptom | What an observer sees, concretely — no interpretation |
 | Root cause | The single mechanism that explains all observations, including negatives (N4) |
 | Evidence | What was actually observed/run, each claim tagged `[repo]` / `[doc]` (with fetch-verified URL) / `[craft]` |
-| Status | `open` / `mitigated` / `settled`, per the lifecycle above |
-| Mitigating skill | Which Section-4 library skill (by exact name) addresses it, or "none yet" |
+| Status | `open` / `mitigated` / `settled` / `retired`, per the lifecycle above |
+| Mitigating skill | Which library skill (by exact inventory name — see the repo `README.md` manifest or `ls .claude/skills/`) addresses it, or "none yet" |
 | Re-verification | One-line command(s) to re-check any volatile fact in the entry |
 
 4. **Evidence honesty is blocking.** Never invent incidents, dates, or metrics. If you cannot verify a URL from your environment, say so and use `[craft]` — exactly as FM-2 and FM-8 above do.
@@ -204,9 +205,9 @@ These are the enemies. Each entry: **symptom → root cause → evidence → sta
 
 All facts as of 2026-07-05.
 
-- **[repo] facts** (DR-1, DR-2, the two-commit history): verified in-session by running `git log --oneline --all`, `git show c30ac04:README.md`, `git show c321e16 --stat`. Re-verify: `git -C /path/to/codofable log --oneline --all` — if more than two commits exist, this file's "complete, not sampled" claim in Register 1 is stale and new history must be mined.
+- **[repo] facts** (DR-1, DR-2, the two-commit pre-library history): verified in-session by running `git log --oneline --all`, `git show c30ac04:README.md`, `git show c321e16 --stat`. Re-verify: `git -C /path/to/codofable log --oneline c321e16` — expect exactly `c321e16`, `c30ac04`. Commits AFTER `c321e16` are library authoring and are expected; if the pre-`c321e16` history itself differs, Register 1 is stale and must be re-mined.
 - **[craft] owner statements** (DR-3, DR-4): the owner's Phase-1 answers, given 2026-07-05; this file is their primary record. Re-verification is only possible by asking the owner.
 - **[doc] citations:** https://code.claude.com/docs/en/context-window (compaction behavior, FM-3) and https://code.claude.com/docs/en/skills (skill mechanics backing this file's format) — both fetch-verified 2026-07-05. Re-verify: `curl -sS -o /dev/null -w '%{http_code}\n' https://code.claude.com/docs/en/context-window.md` (expect `200`; generic pattern — adjust for your environment's proxy).
 - **Known citation gaps, honestly labeled:** FM-2 (reward hacking) and FM-8 (sycophancy) reference public research literature that exists but could not be fetch-verified here because this authoring sandbox's egress allowlist blocked `arxiv.org` and `www.anthropic.com` (observed 403s, 2026-07-05 — see FM-7). First maintainer with open egress: verify and upgrade those entries from [craft] to [doc], with URLs, via the protocol above.
 - **Command provenance:** every command in this file was either run in-session on 2026-07-05 (the git and curl commands above) or is explicitly marked as a generic pattern (FM-5's and FM-10's detection checks, the curl re-verify).
-- **Volatile facts:** the two-commit history (will grow), the egress-allowlist observation (environment-specific), and every `mitigated (unmeasured)` status (should move toward `settled` as `codofable-research-frontier` experiments produce measurements).
+- **Volatile facts:** the repo's total commit count (grows with library authoring; the pre-library history stays two commits), the egress-allowlist observation (environment-specific), and every `mitigated (unmeasured)` status (should move toward `settled` as `codofable-research-frontier` experiments produce measurements).

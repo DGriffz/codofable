@@ -100,38 +100,38 @@ Now, and only now, install things — using Section 3's trap checklist first. Ch
 
 ## 2. Git-history mining
 
-Git history is the highest-density orientation source after CI. All commands below were RUN in this repository on 2026-07-05; outputs marked [repo] are real. This repo's history is tiny (two commits), so the outputs mainly demonstrate the output *shape* — the interpretation notes tell you what to look for in a real codebase.
+Git history is the highest-density orientation source after CI. All commands below were RUN in this repository on 2026-07-05; outputs marked [repo] are real **founding-time snapshots**: they were captured when the repo held only its two pre-library commits (`c30ac04`, `c321e16`). Everything committed after those is library authoring, so re-running the same commands today shows those additional commits on top — expected, and noted per command below. The founding outputs are kept because they demonstrate the output *shape* — the interpretation notes tell you what to look for in a real codebase.
 
 **Recent activity** — what is this project busy with right now:
 
 ```bash
 git log --oneline -20
 ```
-Output here [repo]:
+Founding-time output (2026-07-05) [repo]:
 ```
 c321e16 Enhance README with skill library development phases
 c30ac04 Initial commit
 ```
-In a live repo, read the last 20 subjects as a narrative: active subsystems, ongoing migrations, release cadence.
+(Run today, the library-authoring commits appear above these two.) In a live repo, read the last 20 subjects as a narrative: active subsystems, ongoing migrations, release cadence.
 
 **Hotspots** — which files change most (change frequency correlates with both importance and bug density [craft]):
 
 ```bash
 git log --format= --name-only | sort | uniq -c | sort -rn | head
 ```
-Output here [repo]:
+Founding-time output (2026-07-05) [repo]:
 ```
       2 README.md
       1 LICENSE
 ```
-In a live repo, the top ten files are where you should expect complexity, conflicts, and reviewers' attention.
+(Run today, skill files from the library authoring top this list.) In a live repo, the top ten files are where you should expect complexity, conflicts, and reviewers' attention.
 
 **Reverts** — approaches that were tried and rolled back (do not re-fight settled battles; see `codofable-failure-archaeology`):
 
 ```bash
 git log --grep=revert -i --oneline
 ```
-Output here [repo]: empty — zero reverts (verified: `| wc -l` → 0). In a live repo, read each revert's message and the reverted commit before attempting anything similar.
+Founding-time output (2026-07-05) [repo]: empty — zero reverts (verified: `| wc -l` → 0). Run today, this grep matches at least one library-authoring commit whose message merely *contains* the word "revert" (verified 2026-07-05, post-authoring) — a live reminder that the grep finds the word, not necessarily an actual revert: always read each hit's message and diff before concluding anything.
 
 **Branches and their freshness** — stale branches mark stalled or abandoned work:
 
@@ -139,23 +139,23 @@ Output here [repo]: empty — zero reverts (verified: `| wc -l` → 0). In a liv
 git for-each-ref --sort=-committerdate \
   --format='%(committerdate:short) %(refname:short) %(subject)' refs/remotes/
 ```
-Output here [repo]:
+Founding-time output (2026-07-05) [repo]:
 ```
 2026-07-02 origin/claude/skill-library-continuity-17geoa Enhance README with skill library development phases
 2026-07-02 origin/main Enhance README with skill library development phases
 ```
-Interpretation: both remote branches point at the same commit; there are no dead branches in this repo. In a live repo, branches months behind the default branch with unmerged work are archaeology sites, not starting points.
+(Run today, the working branch's date and subject have advanced with library authoring while `origin/main` stays at the manifest commit.) Interpretation at founding time: both remote branches pointed at the same commit; there are no dead branches in this repo. In a live repo, branches months behind the default branch with unmerged work are archaeology sites, not starting points.
 
 **Who knows what** — commit counts per author:
 
 ```bash
 git shortlog -sn HEAD
 ```
-Output here [repo]:
+Founding-time output (2026-07-05) [repo]:
 ```
      2  Darko Tomic
 ```
-Note the `HEAD` argument: without a revision, `git shortlog` reads from stdin when not attached to a terminal and appears to hang in scripted/agent environments — this bit us during authoring [repo]. Scope to a subsystem with `git shortlog -sn HEAD -- path/` (pattern) to find the owner of the code you are about to touch.
+(Run today, the library-authoring author appears above with its commit count.) Note the `HEAD` argument: without a revision, `git shortlog` reads from stdin when not attached to a terminal and appears to hang in scripted/agent environments — this bit us during authoring [repo]. Scope to a subsystem with `git shortlog -sn HEAD -- path/` (pattern) to find the owner of the code you are about to touch.
 
 ## 3. Environment bootstrap traps
 
@@ -267,7 +267,7 @@ If any box cannot be checked, say so explicitly and label the gap "open" (N8) �
 ## Provenance and maintenance
 
 - Date-stamped 2026-07-05. Volatile facts and their evidence class:
-  - [repo] This repository has exactly two commits, two branches (local `claude/skill-library-continuity-17geoa` + `main`, matching remotes) all at the same commit, zero reverts, one author (Darko Tomic), no manifest files, and no CI config. All Section 1/2 outputs shown as `[repo]` were captured by running the printed commands in-session on 2026-07-05. Re-verify: `git log --oneline -20 && git shortlog -sn HEAD && ls .github/workflows 2>/dev/null`.
+  - [repo] This repository's PRE-LIBRARY history is exactly two commits (`c30ac04`, `c321e16`; one author, Darko Tomic; zero reverts); everything after those is library authoring. It has no manifest files and no CI config. All Section 1/2 outputs shown as `[repo]` are founding-time snapshots captured by running the printed commands in-session on 2026-07-05, before the library-authoring commits landed — re-running them now additionally shows those commits (including a reverts-grep hit on an authoring commit body, as noted in Section 2). Re-verify the founding history: `git log --oneline c321e16` (expect exactly two lines: `c321e16`, `c30ac04`) and `ls .github/workflows 2>/dev/null` (expect nothing).
   - [craft] The trap catalog (Section 3), the CI-over-README principle, and all interpretation guidance are the fellow's professional judgment, marked pattern where not runnable here. The lockfile-pinning flag names (`npm ci`, `--frozen-lockfile`, `--immutable`, `uv sync --frozen`) are correct as of the 2026-07-05 authoring date but package managers rename flags across major versions — re-verify with `<tool> install --help` before relying on an exact flag in a new environment.
 - Commands in the Section 1 table and Section 3 detection/fix blocks are ecosystem-generic patterns (not executable in this manifest-less repo); every command marked [repo] was executed here.
 - Doctrine cited, not restated: N1/N3/N7/N8/N10 and change classes per `codofable-change-control`; evidence levels per `codofable-validation-and-qa`.

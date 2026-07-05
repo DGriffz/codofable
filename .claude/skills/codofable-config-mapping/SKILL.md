@@ -201,7 +201,7 @@ Config drifts faster than code: deploy repos change without touching app code, f
 ## Provenance and maintenance
 
 - Evidence classes: search patterns and outputs quoted above — verified by running them on 2026-07-05 against a synthetic fixture (ripgrep 14.1.0, Python 3.11.15; fixture reproduced in `references/pattern-test-fixture.md`) [craft, verified-on-fixture]. Taxonomy, heuristics, checklist — [craft]. Change classes, non-negotiables (N1, N3, N6, N8, N10), evidence levels E1–E3 — cited from `codofable-change-control` and `codofable-validation-and-qa` [repo]. dotenv/viper precedence remarks — behavior of those libraries as of the authoring date; verify against the target repo's pinned versions [craft, unverified-here since neither library is installed in this repo].
-- This repository itself has no application config surface as of 2026-07-05 (`rg -n --hidden "process\.env|os\.environ|getenv" /home/user/codofable` outside `.claude/skills/` returns nothing) — every command here is a pattern for TARGET repos. [repo]
+- This repository itself has no application config surface as of 2026-07-05 (from the repo root, `rg -n --hidden "process\.env|os\.environ|getenv" .` outside `.claude/skills/` returns nothing) — every command here is a pattern for TARGET repos. [repo]
 - Re-verification one-liners:
   - Patterns still work: rebuild the fixture from `references/pattern-test-fixture.md`, re-run each block, compare to the recorded outputs.
   - ripgrep hidden-file default unchanged: `rg --help | rg -A1 -- --hidden`

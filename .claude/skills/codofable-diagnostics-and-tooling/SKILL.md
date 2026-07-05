@@ -120,16 +120,16 @@ Exit codes: `0` = ran (empty sections are normal) · `2` = path is not a directo
 | Section | What it means | What to do with it |
 |---|---|---|
 | `MANIFESTS` | Ecosystem declarations found (package.json, pyproject.toml, Cargo.toml, Makefile, Dockerfile, ...). Multiple entries in different subdirs = polyglot/monorepo; onboard each component separately. | Tells you which toolchains the repo needs |
-| `LOCKFILES` | Pinned dependency snapshots. The lockfile identifies the ONE installer the project expects (`package-lock.json`→npm, `yarn.lock`→yarn, `pnpm-lock.yaml`→pnpm, `uv.lock`→uv, `poetry.lock`→poetry). | Use that installer's frozen mode; using a different one silently drifts versions |
+| `LOCKFILES` | Pinned dependency snapshots. The lockfile identifies the ONE installer the project expects (lockfile→installer mapping and frozen-mode commands: `codofable-repo-onboarding`, Step 1). | Use that installer's frozen mode; using a different one silently drifts versions |
 | `VERSION PINS` | Version-manager files (`.nvmrc`, `.python-version`, `.tool-versions`, `rust-toolchain`, ...). | Match the pinned runtime BEFORE installing; wrong-runtime installs produce misleading failures |
-| `CI CONFIG` | Pipeline definitions. CI is the repo's executable ground truth for how it actually builds and tests. | Read these files next — trust them over the README when they disagree |
+| `CI CONFIG` | Pipeline definitions — CI-as-ground-truth, per `codofable-repo-onboarding` (Step 3). | Read these files next; `codofable-repo-onboarding` explains how to mine them |
 | `AGENT CONFIG` | `CLAUDE.md` / `.claude/` presence, with a skill-directory count. | If skills exist, load the relevant ones before working |
-| `LIKELY COMMANDS` | Heuristic candidates inferred from the above (npm scripts and Makefile targets are parsed from the real files, not guessed). | These are E4 candidates, not verified facts — confirm against README/CI, then RUN them before writing them into any doc (per Brief-level ground-truth rules) |
+| `LIKELY COMMANDS` | Heuristic candidates inferred from the above (npm scripts and Makefile targets are parsed from the real files, not guessed). | These are E4 candidates, not verified facts — confirm against README/CI, then RUN them before writing them into any doc (per the library's ground-truth rule: `codofable-docs-and-writing`, S2) |
 
 ### Expected output A — this repo, sparse (run in-session 2026-07-05, real, unedited)
 
 ```text
-repo_recon: /home/user/codofable
+repo_recon: .
 
 == MANIFESTS ==
   (none found)
@@ -145,12 +145,12 @@ repo_recon: /home/user/codofable
 
 == AGENT CONFIG ==
   .claude/
-  .claude/skills/ (12 skill dir(s))
+  .claude/skills/ (16 skill dir(s))
 
 == LIKELY COMMANDS (candidates — verify against README/CI before trusting) ==
   (none found)
 ```
-Exit code: `0`. Interpretation: codofable has no application build system — correct, the project is a skill library [repo]. The skill-dir count is volatile while authoring is in progress (it was 12 at run time; re-run for the current number).
+Exit code: `0` (run from the repo root: `sh .claude/skills/codofable-diagnostics-and-tooling/scripts/repo_recon.sh .`). Interpretation: codofable has no application build system — correct, the project is a skill library [repo]. The skill-dir count tracks the library inventory (16 as of 2026-07-05); re-run for the current number.
 
 ### Expected output B — synthetic polyglot fixture, rich (run in-session 2026-07-05, real, unedited)
 
@@ -218,7 +218,7 @@ A new script is a Class 2 change (it alters what future sessions execute) — ga
 
 - Date stamp: authored 2026-07-05. Evidence classes per the library convention: [repo] = verifiable in this repository, [doc] = cited external document, [craft] = professional judgment.
 - Both scripts were written, executed, and debugged in-session on 2026-07-05 under both `dash` (`/bin/sh` here) and `bash`; every output block above is pasted verbatim from those runs [repo — re-runnable]. Validator fixtures covered: pass, WARN (470 lines), >500 lines, missing SKILL.md, name mismatch, empty description, >1024-char description, missing headings, unclosed frontmatter — exit codes 0/1/2 all observed.
-- Volatile facts: the "12 skill dir(s)" count and the mid-build FAIL rows reflect the library DURING parallel authoring on 2026-07-05; the fixture outputs are stable. The invariant thresholds (450/500 lines, 1024 chars) mirror `codofable-architecture-contract` and `codofable-docs-and-writing` as of that date — if the contract changes its limits, update the constants at the top of `validate_skills.sh` in the same change.
+- Volatile facts: the recon output A skill-dir count (16 as of 2026-07-05, re-run that day after authoring completed) tracks the library inventory; the validator fixture outputs are stable. The numeric thresholds (450-line soft cap, 500-line hard cap, 1024-char description cap) are the library convention: declared in `codofable-docs-and-writing` (rule S10 and the frontmatter-facts table), enforced by this validator, and referenced by `codofable-architecture-contract` (whose I1-I7 table carries no numbers of its own). If the convention changes, update the constants at the top of `validate_skills.sh` and `codofable-docs-and-writing` in the same change.
 - Re-verification one-liners (from the repo root):
   - `sh .claude/skills/codofable-diagnostics-and-tooling/scripts/validate_skills.sh; echo "exit=$?"` — library invariants now.
   - `sh .claude/skills/codofable-diagnostics-and-tooling/scripts/repo_recon.sh .` — recon output for this repo now.

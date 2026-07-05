@@ -39,7 +39,7 @@ Each entry: decision → rationale → what breaks if violated. Rationale entrie
 
 ### D1. One home per fact; everyone else cross-references by skill name
 
-**Decision.** Every fact, rule, table, and procedure has exactly one owning skill (the inventory in the repo `README.md` plus the authoring brief fixes ownership). Other skills refer to it by skill name (e.g. "see `codofable-validation-and-qa`") and, for numbered doctrine, by number only.
+**Decision.** Every fact, rule, table, and procedure has exactly one owning skill (the 16-skill inventory in the repo `README.md` manifest fixes ownership). Other skills refer to it by skill name (e.g. "see `codofable-validation-and-qa`") and, for numbered doctrine, by number only.
 
 **Rationale.** Skills are edited independently, by different sessions, at different times. Two copies of the same rule WILL diverge - not might, will - because no editor reliably knows about the second copy. A cross-reference cannot fork; a restatement can.
 
@@ -105,7 +105,7 @@ Each entry: decision → rationale → what breaks if violated. Rationale entrie
 
 ## Invariants
 
-These must ALWAYS hold, for every skill, at every commit. Each is mechanically checkable; the library validator script in `codofable-diagnostics-and-tooling` is the canonical check - run it before and after any library change. The spot-check one-liners below are the fallback if you cannot locate the validator. Run all commands from the repo root.
+These must ALWAYS hold, for every skill, at every commit. The library validator script in `codofable-diagnostics-and-tooling` is the canonical MECHANICAL check for I1-I3 (plus the description-length and line-count limits it enforces) - run it before and after any library change. I4-I7 are checked manually today, via the spot-check one-liners and review passes below; the spot-checks for I1-I3 are the fallback if you cannot locate the validator. Run all commands from the repo root.
 
 | # | Invariant | Spot-check |
 |---|---|---|
@@ -135,7 +135,7 @@ Stated plainly, per N8. Do not paper over these when describing the library to a
 
 A change to the library's structure - adding/removing/renaming/merging skills, moving a fact's home, amending doctrine, changing an invariant - is a change to a behavior-carrying system and gets no exemption from the library's own rules (N9: nothing is too trivial to classify).
 
-1. **Classify it** per `codofable-change-control`. Typical mapping: fixing a typo in one skill = Class 1; moving a fact's home, editing doctrine text, changing a description (it alters routing behavior), or adding/removing a skill = Class 2; publishing/pushing the library outward = Class 3 (N6: needs explicit human authorization).
+1. **Classify it** per `codofable-change-control`. The library rule: a formatting- or typo-only edit to a skill (no content, description, doctrine, or command changes) = Class 1; ANY content, description, doctrine, or command change — including moving a fact's home, editing doctrine text, changing a description (it alters routing behavior), or adding/removing a skill — = Class 2; publishing/pushing the library outward = Class 3 (N6: needs explicit human authorization). `codofable-docs-and-writing` applies the same rule in its authoring runbook.
 2. **Check blast radius before editing.** Grep for every citation of the thing you are changing: `grep -rn '<skill-name-or-N-number>' .claude/skills/` - every hit is a dependent you must update in the same change (D1, D2).
 3. **Respect the amendment rule** for numbered doctrine: append, never renumber (W4).
 4. **Update THIS contract in the same change** if the change touches any design decision, invariant, or weak point recorded here. An architectural change that leaves this contract stale is incomplete by definition - the contract would then violate its own D6.
@@ -151,6 +151,6 @@ Volatile facts and their re-verification one-liners (run from the repo root):
 - Repo history is still exactly two initial commits plus skill-library work (basis of D7, W2, I4): `git log --oneline` - as of 2026-07-05 this showed only `c321e16` and `c30ac04` [repo].
 - Skill loading is description-routed and bodies load on demand; listing text truncates at 1,536 chars (basis of D3, D4): re-fetch https://code.claude.com/docs/en/skills and check the frontmatter reference and "full skill content only loads when invoked" [doc]. Platform behavior can change; re-verify before relying on exact limits.
 - All 16 inventory skills exist on disk (basis of I6 and the cross-references in this file): `ls .claude/skills/` and compare against the inventory in the repo README/authoring records. As of authoring time, sibling skills were being written concurrently; if any referenced skill is missing, that is an I6 violation to fix, not a reason to edit this file's references.
-- The library validator exists and covers I1-I3, I6, I7: check `ls .claude/skills/codofable-diagnostics-and-tooling/scripts/` and run the validator; if it is absent or covers a different invariant set, reconcile per the note under the Invariants table.
+- The library validator exists and mechanically covers I1-I3 plus the description-length and line-count limits — no more: check `ls .claude/skills/codofable-diagnostics-and-tooling/scripts/` and run the validator. I4-I7 (including I6 dangling-cross-reference and I7 doctrine-home checks) are manually checked today via the spot-check one-liners and review passes; mechanizing I6/I7 is a candidate improvement, adjacent to the drift-mechanization problem in `codofable-research-frontier` (P3). If the validator's actual checks and this claim drift apart, reconcile per the note under the Invariants table.
 - Spot-check commands in the Invariants table were run against this library's state on 2026-07-05 and are POSIX-shell patterns; if a future skill uses frontmatter formatting these one-liners cannot parse (e.g. quoted `name:` values), prefer the validator script.
 - W1 remains OPEN until `codofable-research-frontier`'s uplift experiment reports numbers; when it does, update W1 here in the same change (step 4 above).

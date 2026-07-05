@@ -1,6 +1,6 @@
 ---
 name: codofable-research-methodology
-description: The discipline that turns a hunch into an accepted result — the project's scientific method as procedure. Load this skill when a session is about to investigate WHY something behaves as it does, propose a mechanism or root cause, run an experiment, claim "X causes Y", accept or reject a hypothesis, or decide whether an idea should be adopted or retired. Trigger phrases and situations - "I think the cause is...", "let's test whether...", "my hypothesis is...", "this proves...", "the experiment shows...", designing a benchmark or A/B comparison, evaluating a candidate mechanism against observations, deciding what to do with a stalled or disproven idea, or noticing an anomaly worth chasing. Provides the evidence bar (one mechanism explains ALL observations including negatives, plus assigned adversarial refutation), the pre-registration template (predict numbers BEFORE running), the idea lifecycle state machine (hunch to ADOPTED or RETIRED), and a scan list for finding good research questions.
+description: The discipline that turns a hunch into an accepted result — the project's scientific method as procedure. Load this skill when a session is about to investigate WHY something behaves as it does, propose a mechanism or root cause, run an experiment, claim "X causes Y", accept or reject a hypothesis, or decide whether an idea should be adopted or retired. Trigger phrases and situations - "I think the cause is...", "let's test whether...", "my hypothesis is...", "this proves...", "the experiment shows...", designing a benchmark or A/B comparison, deciding what to do with a stalled or disproven idea, or noticing an anomaly worth chasing. Provides the evidence bar (one mechanism explains ALL observations including negatives, plus assigned adversarial refutation), the pre-registration template (predict numbers BEFORE running), the idea lifecycle state machine (hunch to ADOPTED or RETIRED), and a scan list for finding good research questions.
 ---
 
 # codofable-research-methodology
@@ -149,7 +149,7 @@ Whatever the scan surfaces enters the lifecycle at **hunch** — one written lin
 
 ## 5. Worked micro-example: the full lifecycle on a real question
 
-Executed in this session, 2026-07-05, in a throwaway fixture directory, GNU coreutils `wc` 9.4 on Linux. [repo-adjacent: transcript is from this sandbox; the *pattern* is generic] Everything below was written and run in the order shown — prediction first, execution second.
+Executed in this session, 2026-07-05, in a throwaway fixture directory, GNU coreutils `wc` 9.4 on Linux. The transcripts are real captured output [craft-demo, run in-session]; the commands are ecosystem-generic and will behave identically on any GNU/Linux box. Everything below was written and run in the order shown — prediction first, execution second.
 
 **Hunch** (from a Section-4 #3 scan — two things that "should" be the same): a 3-line file and `wc -l` "should" agree that it has 3 lines. Do they always?
 

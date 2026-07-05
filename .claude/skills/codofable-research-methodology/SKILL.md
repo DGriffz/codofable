@@ -202,7 +202,7 @@ $ printf '' | wc -l
 0
 ```
 
-Verdicts: HELD, HELD, HELD. Every attack's predicted number matched. The refuter also confirmed the mechanism is documented — POSIX defines a line as "a sequence of zero or more non-<newline> characters plus a terminating <newline>", so trailing text without a final `\n` is an *incomplete line* and is not counted [doc: https://pubs.opengroup.org/onlinepubs/9699919799/utilities/wc.html].
+Verdicts: HELD, HELD, HELD. Every attack's predicted number matched. The refuter also confirmed the mechanism is documented locally: `wc --help` (run in-session, coreutils 9.4) opens with "Print **newline**, word, and byte counts for each FILE" — `-l` is literally the *newline* count, not a line count. (POSIX additionally defines a line as requiring a terminating newline, which is the same mechanism; that source — pubs.opengroup.org, wc utility page — was NOT reachable from this sandbox and is cited from memory: verify it yourself before quoting onward.)
 
 **Outcome: ADOPTED** as an accepted mechanism (as a piece of knowledge, this needs no Class 2 gate — nothing in the repo changes; had it implied a behavior change, e.g. "our line-count script must append a final newline before counting," that edit would route through `codofable-change-control` as Class 2 with this transcript as its E1 evidence).
 
@@ -212,6 +212,6 @@ Total cost: six commands. The point of the example is not `wc` trivia; it is the
 
 - Doctrine cited (N1, N2, N4, N8, change classes, E1–E4) is canon owned by `codofable-change-control` and `codofable-validation-and-qa`; this skill cites and does not restate it. [repo — as of 2026-07-05]
 - The Section 5 transcripts are real output captured in-session on 2026-07-05, GNU coreutils 9.4, Linux. `wc -l` semantics are POSIX-stable, but re-verify on a new platform with: `printf 'a\nb\nc' | wc -l` (expect `2`) and `wc --version | head -1`. [repo/doc]
-- The POSIX wc definition citation: https://pubs.opengroup.org/onlinepubs/9699919799/utilities/wc.html (verify the "incomplete line" wording there if quoting onward). [doc]
+- The `wc --help` "Print newline, word, and byte counts" wording was captured in-session (coreutils 9.4); re-verify with `wc --help | head -3`. [repo — as of 2026-07-05] The POSIX wc page (https://pubs.opengroup.org/onlinepubs/9699919799/utilities/wc.html) is cited from memory only — it was unreachable from this sandbox on 2026-07-05; treat it as unverified until you fetch it. [craft, pending doc]
 - The refuter charter, pre-registration template, garden-of-forking-paths rationale, lifecycle table, and idea-scan list are the fellow's professional judgment, marked [craft] in place; they carry no repo history — this repository has no experiment log yet (its entire history is two commits as of 2026-07-05: `git log --oneline | wc -l` → `2`). [repo]
 - Cross-referenced skills (`codofable-orchestration`, `codofable-config-mapping`, `codofable-change-control`, `codofable-failure-archaeology`, `codofable-validation-and-qa`, `codofable-research-frontier`, `codofable-verified-done-campaign`, `codofable-debugging-playbook`, `codofable-proof-and-analysis-toolkit`) are the Section-4 inventory names of the authoring brief; re-verify existence with: `ls /path/to/repo/.claude/skills/`. [repo — as of 2026-07-05]
